@@ -26,6 +26,10 @@ export default class {
         return this._wallet;
     }
 
+    get Fare(): number {
+        return this.chargedFare;
+    }
+
     SwipeIn(station: Station, mode: Transport) {
         this.chargedFare = mode.type === T.BUS ? fares.ANY_BUS_TRIP: fares.MAX_FARE;
         if (this.Wallet < this.chargedFare) {
