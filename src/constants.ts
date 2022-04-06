@@ -1,4 +1,4 @@
-export const T = {
+export const t = {
     BUS: "BUS",
     TUBE: "TUBE",
 };
@@ -16,3 +16,4 @@ export const fares = {
 export interface Station {
     name: string, zone: number[]
 };
+
