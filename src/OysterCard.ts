@@ -24,29 +24,42 @@ export default class {
         return this.chargedFare;
     }
 
-    SwipeIn(station: Station, mode: Transport) {
+    showValueWalletAndFares(): string {
+        if (this.Wallet < this.Fare) {
+            console.log("Not enough funds!")
+            return;
+        } else {
+            console.log(`Fare: £${this.Fare.toFixed(2)}`);
+            console.log(`Wallet: £${this.Wallet.toFixed(2)}`);
+        }
+    }
+
+    entryStation(station: Station, mode: Transport) {
         this.chargedFare = mode.type === t.BUS ? fares.ANY_BUS_TRIP : fares.MAX_FARE;
 
         if (this.Wallet < this.chargedFare) {
-            return "Wallet doesn't meet minimum balance";
+            return;
+        } else {
+            this.Wallet = this.Wallet - this.chargedFare;
+            this.journey = []
+            this.journey[0] = JSON.parse(JSON.stringify(station));
         }
-
-        this.Wallet = this.Wallet - this.chargedFare;
-        this.journey = []
-        this.journey[0] = JSON.parse(JSON.stringify(station));
-
     }
 
-    SwipeOut(station: Station, mode: Transport) {
-        if (mode.type === t.BUS) {
-            console.log(`${this.journey[0].name} to ${station.name} via BUS`);
+    exitStation(station: Station, mode: Transport) {
+        if (this.Wallet < this.chargedFare) {
             return;
+        } else {
+            if (mode.type === t.BUS) {
+                console.log(`${this.journey[0].name} to ${station.name} via BUS`);
+                return;
+            }
+            
+            this.journey[1] = JSON.parse(JSON.stringify(station));
+            this.tripOptimization();
+            this.chargedFare = this.calculateTubeFare(this.setZonesTravelled(), this.journey);
+            this.Wallet = (this.Wallet + fares.MAX_FARE) - this.chargedFare;
         }
-
-        this.journey[1] = JSON.parse(JSON.stringify(station));
-        this.tripOptimization();
-        this.chargedFare = this.calculateTubeFare(this.setZonesTravelled(), this.journey);
-        this.Wallet = (this.Wallet + fares.MAX_FARE) - this.chargedFare;
     }
 
     selectZone(counts: number[], goal: number) {
