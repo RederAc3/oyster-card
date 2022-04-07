@@ -24,7 +24,7 @@ export default class {
         return this.chargedFare;
     }
 
-    showValueWalletAndFares(): string {
+    showValueWalletAndFares() {
         if (this.Wallet < this.Fare) {
             console.log("Not enough funds!")
             return;
@@ -51,7 +51,7 @@ export default class {
             return;
         } else {
             if (mode.type === t.BUS) {
-                console.log(`${this.journey[0].name} to ${station.name} via BUS`);
+                console.log(`${this.journey[0].name} to ${station.name}`);
                 return;
             }
             
@@ -69,13 +69,11 @@ export default class {
 
     tripOptimization() {
         const inZone = this.journey[0].zone, outZone = this.journey[1].zone;
+
         if (inZone.length < outZone.length) {
             this.journey[1].zone = [this.selectZone(outZone, inZone[0])]
-            return;
-
         } else if (inZone.length > outZone.length) {
             this.journey[0].zone = [this.selectZone(inZone, outZone[0])];
-            return;
         }
     }
 
@@ -85,7 +83,8 @@ export default class {
     }
 
     getZonesTravelledCount(from: number[], to: number[]): number {
-        let count;
+        let count = 0;
+
         from.forEach(function (fromZone) {
             to.forEach(function (toZone) {
                 count = Math.abs(fromZone - toZone) + 1;

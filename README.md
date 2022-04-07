@@ -7,7 +7,7 @@ $ npm i
 ## Run tests
 
 ```
-$ npm run test
+$ npm test
 ```
 
 ## Run app
