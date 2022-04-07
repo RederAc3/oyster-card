@@ -15,4 +15,3 @@ $ npm test
 ```
 $ npm start
 ```
-##### Open [http://localhost:9000](http://localhost:9000)
