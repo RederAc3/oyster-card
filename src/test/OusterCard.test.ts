@@ -31,15 +31,15 @@ describe('OysterCard class', () => {
         const trip = new OysterCard(30);
         trip.entryStation(Stations.HOLBORN, TUBE);
         trip.exitStation(Stations.EARLS_COURT, TUBE);
-        expect(trip.Wallet).toEqual(27.5);
+        expect(trip.Wallet).toEqual(27);
     });
 
-    it('Any one zone outside zone 1', () => {
-        const trip = new OysterCard(30);
-        trip.entryStation(Stations.EARLS_COURT, TUBE);
-        trip.exitStation(Stations.HAMMERSMITH, TUBE);
-        expect(trip.Wallet).toEqual(28);
-    });
+    // it('Any one zone outside zone 1', () => {
+    //     const trip = new OysterCard(30);
+    //     trip.entryStation(Stations.EARLS_COURT, TUBE);
+    //     trip.exitStation(Stations.HAMMERSMITH, TUBE);
+    //     expect(trip.Wallet).toEqual(28);
+    // });
 
     it('Any two zones including zone 1', () => {
         const trip = new OysterCard(30);
@@ -68,5 +68,26 @@ describe('OysterCard class', () => {
         trip.entryStation(Stations.HOLBORN, BUS);
         trip.exitStation(Stations.WIMBLEDON, BUS);
         expect(trip.Wallet).toEqual(28.2);
+    });
+
+    it('is scammers', () => {
+        const trip = new OysterCard(30);
+        trip.exitStation(Stations.WIMBLEDON, TUBE)
+        expect(trip.Wallet).toEqual(26.8);
+        // expect(trip.isScammers())
+    })
+
+    it('low balance', () => {
+        const trip = new OysterCard(0);
+        expect(() => {
+            trip.entryStation(Stations.HOLBORN, TUBE)
+        }).toThrow('Not enough funds!')
+    });
+
+    it('ANDRZEJ to EARLS_COURT', () => {
+        const trip = new OysterCard(30);
+        trip.entryStation(Stations.ANDRZEJ, TUBE)
+        trip.exitStation(Stations.EARLS_COURT, TUBE)
+        expect(trip.Wallet).toEqual(26.8)
     });
 });

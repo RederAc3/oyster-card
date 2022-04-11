@@ -26,8 +26,8 @@ export default class {
 
     showValueWalletAndFares() {
         if (this.Wallet < this.Fare) {
-            console.log("Not enough funds!")
-            return;
+            console.log("")
+            throw new Error("Not enough funds!")
         } else {
             console.log(`Fare: £${this.Fare.toFixed(2)}`);
             console.log(`Wallet: £${this.Wallet.toFixed(2)}`);
@@ -36,34 +36,47 @@ export default class {
 
     entryStation(station: Station, mode: Transport) {
         this.chargedFare = mode.type === t.BUS ? fares.ANY_BUS_TRIP : fares.MAX_FARE;
-
+        
         if (this.Wallet < this.chargedFare) {
-            return;
+            throw new Error("Not enough funds!")
         } else {
             this.Wallet = this.Wallet - this.chargedFare;
             this.journey = []
-            this.journey[0] = JSON.parse(JSON.stringify(station));
+            this.journey[0] = {...station};
         }
     }
 
     exitStation(station: Station, mode: Transport) {
         if (this.Wallet < this.chargedFare) {
-            return;
+            throw new Error("Not enough funds!")
+        } else if (this.isScammers()) {
+            this.chargedFare = fares.MAX_FARE;
+            console.log(fares.MAX_FARE)
+            this.Wallet -= this.chargedFare;
         } else {
             if (mode.type === t.BUS) {
                 console.log(`${this.journey[0].name} to ${station.name}`);
                 return;
             }
-            
-            this.journey[1] = JSON.parse(JSON.stringify(station));
+
+            this.journey[1] = {...station};
             this.tripOptimization();
             this.chargedFare = this.calculateTubeFare(this.setZonesTravelled(), this.journey);
             this.Wallet = (this.Wallet + fares.MAX_FARE) - this.chargedFare;
         }
+        
+    }
+
+    isScammers() {
+        if (!this.journey[0]) {
+            return true;
+        } else {
+            return false
+        }
     }
 
     selectZone(counts: number[], goal: number) {
-        const selectedZone = counts.reduce((prev, curr) => Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
+        const selectedZone = counts.reduce((prev, curr) => Math.abs(curr - goal) > Math.abs(prev - goal) ? curr : prev);
         return selectedZone
     }
 
@@ -71,9 +84,12 @@ export default class {
         const inZone = this.journey[0].zone, outZone = this.journey[1].zone;
 
         if (inZone.length < outZone.length) {
-            this.journey[1].zone = [this.selectZone(outZone, inZone[0])]
+            this.journey[1].zone = [this.selectZone(outZone, inZone[0])];
         } else if (inZone.length > outZone.length) {
             this.journey[0].zone = [this.selectZone(inZone, outZone[0])];
+        } else if (inZone.length > 1 && outZone.length > 1) {
+            this.journey[0].zone = [this.selectZone(inZone, outZone[0])];
+            this.journey[1].zone = [this.selectZone(outZone, inZone[0])];
         }
     }
 
@@ -90,6 +106,7 @@ export default class {
                 count = Math.abs(fromZone - toZone) + 1;
             });
         });
+
         return count;
     }
 
