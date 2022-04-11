@@ -41,7 +41,7 @@ export default class {
             throw new Error("Not enough funds!")
         } else {
             this.Wallet = this.Wallet - this.chargedFare;
-            this.journey = []
+            this.journey = [];
             this.journey[0] = {...station};
         }
     }
@@ -49,10 +49,11 @@ export default class {
     exitStation(station: Station, mode: Transport) {
         if (this.Wallet < this.chargedFare) {
             throw new Error("Not enough funds!")
+
         } else if (this.isScammers()) {
             this.chargedFare = fares.MAX_FARE;
-            console.log(fares.MAX_FARE)
             this.Wallet -= this.chargedFare;
+
         } else {
             if (mode.type === t.BUS) {
                 console.log(`${this.journey[0].name} to ${station.name}`);
@@ -64,32 +65,31 @@ export default class {
             this.chargedFare = this.calculateTubeFare(this.setZonesTravelled(), this.journey);
             this.Wallet = (this.Wallet + fares.MAX_FARE) - this.chargedFare;
         }
-        
     }
 
-    isScammers() {
-        if (!this.journey[0]) {
-            return true;
-        } else {
-            return false
-        }
+    isScammers():boolean {
+        return (!this.journey[0]) ? true : false
     }
 
-    selectZone(counts: number[], goal: number) {
+    selectZone(counts: number[], goal: number): number {
         const selectedZone = counts.reduce((prev, curr) => Math.abs(curr - goal) > Math.abs(prev - goal) ? curr : prev);
-        return selectedZone
+        return selectedZone;
     }
 
     tripOptimization() {
-        const inZone = this.journey[0].zone, outZone = this.journey[1].zone;
+        const journey = this.journey;
+        const inZone = journey[0].zone, outZone = journey[1].zone;
+        const selectZone = this.selectZone;
 
         if (inZone.length < outZone.length) {
-            this.journey[1].zone = [this.selectZone(outZone, inZone[0])];
+            journey[1].zone = [selectZone(outZone, inZone[0])];
+
         } else if (inZone.length > outZone.length) {
-            this.journey[0].zone = [this.selectZone(inZone, outZone[0])];
+            journey[0].zone = [selectZone(inZone, outZone[0])];
+
         } else if (inZone.length > 1 && outZone.length > 1) {
-            this.journey[0].zone = [this.selectZone(inZone, outZone[0])];
-            this.journey[1].zone = [this.selectZone(outZone, inZone[0])];
+            journey[0].zone = [selectZone(inZone, outZone[0])];
+            journey[1].zone = [selectZone(outZone, inZone[0])];
         }
     }
 
@@ -106,27 +106,43 @@ export default class {
                 count = Math.abs(fromZone - toZone) + 1;
             });
         });
-
         return count;
     }
 
     calculateTubeFare(zonesTravelled: number, journey: Station[]): number {
         const from = journey[0].zone, to = journey[1].zone;
-        if (zonesTravelled == 1 && from.includes(1) && to.includes(1)) {
+
+        if (zonesTravelled == 1 && this.isAnywhereInZone1(from, to)) {
             return fares.ANYWHERE_IN_ZONE1;
-        }
-        if (zonesTravelled === 1 && !from.includes(1) && !to.includes(1)) {
+
+        } else if (zonesTravelled === 1 && this.isOneZoneOutsideZone1(from, to)) {
             return fares.ONE_ZONE_OUTSIDE_ZONE1;
-        }
-        if (zonesTravelled === 2 && (from.includes(1) && to.includes(2)) || from.includes(2) && to.includes(1)) {
+
+        } else if (zonesTravelled === 2 && this.isTwoZoneIncludingZone1(from, to)) {
             return fares.TWO_ZONE_INCLUDING_ZONE1;
-        }
-        if (zonesTravelled === 2 && !from.includes(1) && !to.includes(1)) {
+
+        } else if (zonesTravelled === 2 && this.isTwoZoneExcludingZone1(from, to)) {
             return fares.TWO_ZONE_EXCLUDING_ZONE1;
-        }
-        if (zonesTravelled === 3) {
+
+        } else if (zonesTravelled === 3) {
             return fares.THREE_ZONES;
         }
         return fares.MAX_FARE;
+    }
+
+    isAnywhereInZone1(from: number[], to: number[]):boolean {
+        return (from.includes(1) && to.includes(1)) ? true : false;
+    }
+
+    isOneZoneOutsideZone1(from: number[], to: number[]):boolean {
+        return (!from.includes(1) && !to.includes(1)) ? true : false; 
+    }
+
+    isTwoZoneIncludingZone1(from: number[], to: number[]):boolean {
+        return ((from.includes(1) && to.includes(2)) || from.includes(2) && to.includes(1)) ? true : false;
+    }
+
+    isTwoZoneExcludingZone1(from: number[], to: number[]):boolean {
+        return (!from.includes(1) && !to.includes(1)) ? true : false;
     }
 }
