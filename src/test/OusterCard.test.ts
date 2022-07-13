@@ -82,11 +82,4 @@ describe('OysterCard class', () => {
             trip.entryStation(Stations.HOLBORN, TUBE)
         }).toThrow('Not enough funds!')
     });
-
-    it('ANDRZEJ to EARLS_COURT', () => {
-        const trip = new OysterCard(30);
-        trip.entryStation(Stations.ANDRZEJ, TUBE)
-        trip.exitStation(Stations.EARLS_COURT, TUBE)
-        expect(trip.Wallet).toEqual(26.8)
-    });
 });
